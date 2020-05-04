@@ -71,9 +71,11 @@ pool_size = 0 # N cores (0 for serial)
 # Build impedance # 
 ###################
 
+# Slicer
 slicer_for_wakefields = UniformBinSlicer(
                         n_slices_wake, z_cuts=(-z_cut, z_cut))
 
+# Dipolar wake
 wake_dipolar = wakes.Resonator(R_shunt=resonator_R_shunt,
         frequency=resonator_frequency,
         Q=resonator_Q,
@@ -84,6 +86,7 @@ wake_dipolar = wakes.Resonator(R_shunt=resonator_R_shunt,
         switch_Z=0)
 wake_dipolar_element = wakes.WakeField(slicer_for_wakefields, wake_dipolar)
 
+# Quadrupolar wake
 wake_quadrupolar = wakes.Resonator(R_shunt=resonator_R_shunt,
         frequency=resonator_frequency,
         Q=resonator_Q,
