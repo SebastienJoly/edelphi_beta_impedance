@@ -25,4 +25,6 @@ To configure the scan you can use:
  python 001_analysis_scan.py
  ```
  
+ The scripts ```000_config_scan.py``` and ```001_analysis_scan.py``` can be modified to scan different parameters.
+ 
 
