@@ -1,3 +1,12 @@
+# Parameters from config script
+
+# start-settings-section
+
+this_intensity = 1.2e11
+
+# end-settings-section
+
+##########################################
 import numpy as np
 
 from scipy.constants import c as clight
@@ -34,7 +43,7 @@ Yokoya_X2 = 1.
 n_slices_wake = 500
 
 # Bunch_parameters
-intensity = 1.2e+11
+intensity = this_intensity
 sigma_z = 0.09705
 z_cut = 2.5e-9/2*clight
 particle_charge = qe
@@ -56,7 +65,7 @@ r_b = 4*sigma_z
 a_param = 8./r_b**2
 lambda_param = 1
 
-pool_size = 4 # N cores (0 for serial)
+pool_size = 0 # N cores (0 for serial)
 
 ###################
 # Build impedance # 
@@ -89,6 +98,7 @@ wake_quadrupolar_element = wakes.WakeField(slicer_for_wakefields,
 ##########################
 # Characterize impedance # 
 ##########################
+print('Start impedance characterization...')
 imp_characterization = ic.characterize_impedances(
         wake_dipolar_element=wake_dipolar_element,
         wake_quadrupolar_element=wake_dipolar_element,
@@ -103,12 +113,14 @@ imp_characterization = ic.characterize_impedances(
         z_cut=z_cut,
         n_tail_cut=n_tail_cut,
         detuning_fit_order=detuning_fit_order)
+print('Done!')
 
 
 ##############################
 # Build mode coupling matrix #
 ##############################
 # Build matrix
+assert(N_max < n_samples_hh_kk/4)
 beta_N = [0, Qp]
 MM_obj = CouplingMatrix(
         imp_characterization['z_slices'],
