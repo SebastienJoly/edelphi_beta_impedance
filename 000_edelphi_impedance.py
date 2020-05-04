@@ -8,12 +8,22 @@ import PyHEADTAIL.impedances.wakes as wakes
 from PyHEADTAIL.particles import generators
 from PyHEADTAIL.particles.slicing import UniformBinSlicer
 
+from mode_coupling_matrix import CouplingMatrix
+
 ##############
 # Parameters #
 ##############
 
 circumference = 27e3
 gamma = 480.
+beta_fun_at_imped = 92.7
+Q_full = 62.27
+Qp=0.
+Qs = 4.9e-3
+eta = 0.000318152589
+
+omega0 = 2*np.pi*clight/circumference
+omega_s = Qs * omega0
 
 # Impedance definition
 resonator_R_shunt = 3*25e6
@@ -34,6 +44,19 @@ particle_mass = m_p
 n_sine_terms = 200
 test_amplitude = 1.
 detuning_fit_order = 10
+l_min = -7
+l_max = 7
+m_max = 20
+n_phi = 3*360
+n_r = 3*200
+N_max = 29
+n_tail_cut = 0
+include_detuning_with_long_amplitude = True
+r_b = 4*sigma_z
+a_param = 8./r_b**2
+lambda_param = 1
+
+pool_size = 4 # N cores (0 for serial)
 
 ###################
 # Build impedance # 
@@ -162,6 +185,14 @@ x_mat = np.array(x_mat)
 x_meas_mat = np.array(x_meas_mat)
 dpx_mat = np.array(dpx_mat)
 
+HH = x_mat
+KK = dpx_mat
+
+if n_tail_cut > 0:
+    KK[:, :n_tail_cut] = 0.
+    KK[:, -n_tail_cut:] = 0.
+
+
 import scipy.io as sio
 sio.savemat('response_data.mat',{
     'x_mat': x_mat,
@@ -189,15 +220,35 @@ k_quad = slices_set.mean_xp/test_amplitude
 p = np.polyfit(z_slices, k_quad, deg=detuning_fit_order)
 alpha_N = p[::-1]
 
-#############################
-# Detuning characterization #
-#############################
+##############################
+# Build mode coupling matrix #
+##############################
 # Build matrix
-MM_obj = CouplingMatrix(z_slices, HH, cloud_rescale_by*KK, l_min,
-        l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
+beta_N = [0, Qp]
+MM_obj = CouplingMatrix(z_slices, HH, KK, l_min,
+        l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_z, r_b,
         a_param, lambda_param, omega0, omega_s, eta,
         alpha_p=alpha_N,
-        beta_p = beta_N, beta_fun_rescale=beta_fun_rescale,
+        beta_p = beta_N, beta_fun_rescale=beta_fun_at_imped,
         include_detuning_with_longit_amplitude=include_detuning_with_long_amplitude,
         pool_size=pool_size)
+
+
+#######################
+# Compute eigenvalues #
+#######################
+Omega = MM_obj.compute_mode_complex_freq(omega_s)
+
+i_l0 = np.argmin(np.abs(MM_obj.l_vect))
+M00_array = MM_obj.MM[i_l0,0,i_l0,0]
+
+sio.savemat('eigenvalues.mat', {
+    'Omega': Omega,
+    'M00_array': M00_array,
+    'omega0': omega0,
+    'omega_s': omega_s,
+    'l_min': l_min,
+    'l_max': l_max,
+    'm_max': m_max,
+    'N_max': N_max})
 
