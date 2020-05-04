@@ -9,13 +9,14 @@ from PyHEADTAIL.particles import generators
 from PyHEADTAIL.particles.slicing import UniformBinSlicer
 
 from mode_coupling_matrix import CouplingMatrix
+import impedance_characterization as ic
 
 ##############
 # Parameters #
 ##############
 
 circumference = 27e3
-gamma = 480.
+particle_gamma = 480.
 beta_fun_at_imped = 92.7
 Q_full = 62.27
 Qp=0.
@@ -41,7 +42,7 @@ particle_charge = qe
 particle_mass = m_p
 
 # e-delphi settings
-n_sine_terms = 200
+n_samples_hh_kk = 200
 test_amplitude = 1.
 detuning_fit_order = 10
 l_min = -7
@@ -86,6 +87,25 @@ wake_quadrupolar = wakes.Resonator(R_shunt=resonator_R_shunt,
 wake_quadrupolar_element = wakes.WakeField(slicer_for_wakefields,
         wake_quadrupolar)
 
+##########################
+# Characterize impedance # 
+##########################
+imp_characterization = ic.characterize_impedances(
+        wake_dipolar_element=wake_dipolar_element,
+        wake_quadrupolar_element=wake_dipolar_element,
+        n_samples_hh_kk=n_samples_hh_kk,
+        test_amplitude=test_amplitude,
+        intensity=intensity,
+        sigma_z=sigma_z,
+        circumference=circumference,
+        particle_charge=particle_charge,
+        particle_mass=particle_mass,
+        particle_gamma=particle_gamma,
+        z_cut=z_cut,
+        n_tail_cut=n_tail_cut,
+        detuning_fit_order=detuning_fit_order)
+
+prrrrr
 # Build response matrix for dipolar impedance
 slicer_for_harmonicresponse = UniformBinSlicer(
                         n_sine_terms, z_cuts=(-z_cut, z_cut))
