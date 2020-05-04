@@ -87,7 +87,6 @@ wake_quadrupolar_element = wakes.WakeField(slicer_for_wakefields,
         wake_quadrupolar)
 
 # Build response matrix for dipolar impedance
-
 slicer_for_harmonicresponse = UniformBinSlicer(
                         n_sine_terms, z_cuts=(-z_cut, z_cut))
 
@@ -107,6 +106,9 @@ bunch = generators.ParticleGenerator(
         generators.gaussian2D_asymmetrical(sigma_u=sigma_z, sigma_up=1e-4),
         is_accepted=(lambda z, dp: np.array(len(z) * [True]))),
     ).generate()
+
+bunch.x *= 0
+bunch.xp *= 0
 
 # Generate configurations
 assert(n_sine_terms % 2 ==0)
