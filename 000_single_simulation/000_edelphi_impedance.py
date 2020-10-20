@@ -35,8 +35,8 @@ omega0 = 2*np.pi*clight/circumference
 omega_s = Qs * omega0
 
 # Impedance definition
-resonator_R_shunt = 3*25e6
-resonator_frequency = 2e9
+resonator_R_shunt = 10e6
+resonator_frequency = 1e9
 resonator_Q = 1.
 Yokoya_X1 = 1.
 Yokoya_X2 = 1.
@@ -104,7 +104,7 @@ wake_quadrupolar_element = wakes.WakeField(slicer_for_wakefields,
 print('Start impedance characterization...')
 imp_characterization = ic.characterize_impedances(
         wake_dipolar_element=wake_dipolar_element,
-        wake_quadrupolar_element=wake_dipolar_element,
+        wake_quadrupolar_element=wake_quadrupolar_element,
         n_samples_hh_kk=n_samples_hh_kk,
         test_amplitude=test_amplitude,
         intensity=intensity,
@@ -125,30 +125,43 @@ print('Done!')
 # Build matrix
 assert(N_max < n_samples_hh_kk/4)
 beta_N = [0, Qp]
-MM_obj = CouplingMatrix(
-        imp_characterization['z_slices'],
-        imp_characterization['HH'],
-        imp_characterization['KK'],
-        l_min, l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_z, r_b,
-        a_param, lambda_param, omega0, omega_s, eta,
-        alpha_p=imp_characterization['alpha_N'],
-        beta_p = beta_N, beta_fun_rescale=beta_fun_at_imped,
-        include_detuning_with_longit_amplitude=include_detuning_with_long_amplitude,
-        pool_size=pool_size)
+planes = ['x','y']
+MM_list = []
+for plane in planes:
+
+    if (plane != x) and (plane != y):
+        raise ValueError('Wrong argument for planes')
+
+    MM_obj = CouplingMatrix(
+                imp_characterization['z_slices'],
+                imp_characterization['HH_' + plane],
+                imp_characterization['KK_' + plane],
+                l_min, l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_z, r_b,
+                a_param, lambda_param, omega0, omega_s, eta,
+                alpha_p=imp_characterization['alpha_N' + plane],
+                beta_p = beta_N, beta_fun_rescale=beta_fun_at_imped,
+                include_detuning_with_longit_amplitude=include_detuning_with_long_amplitude,
+                pool_size=pool_size)
+    MM_list.append(MM_obj)
+
+print('Matrix built !')
 
 
 #######################
 # Compute eigenvalues #
 #######################
-Omega = MM_obj.compute_mode_complex_freq(omega_s)
+Omega = np.array([MM_obj.compute_mode_complex_freq(omega_s) for MM_obj in MM_obj])
+M00_array = np.array([MM_obj.MM[np.argmin(np.abs(MM_obj.l_vect)),0, 
+                                          np.argmin(np.abs(MM_obj.l_vect)),0] for MM_obj in MM_obj])
 
-i_l0 = np.argmin(np.abs(MM_obj.l_vect))
-M00_array = MM_obj.MM[i_l0,0,i_l0,0]
+print('Eigenvalues computed !')
+
 
 import scipy.io as sio
 sio.savemat('eigenvalues.mat', {
     'Omega': Omega,
     'M00_array': M00_array,
+    'planes': planes,
     'omega0': omega0,
     'omega_s': omega_s,
     'l_min': l_min,
@@ -156,3 +169,4 @@ sio.savemat('eigenvalues.mat', {
     'm_max': m_max,
     'N_max': N_max})
 
+print('Finished')
