@@ -23,6 +23,9 @@ import impedance_characterization as ic
 # Parameters #
 ##############
 
+# Choose plane, either 'x' or 'y'
+plane = ['x']
+
 circumference = 27e3
 particle_gamma = 480.
 beta_fun_at_imped = 92.7
@@ -124,25 +127,22 @@ print('Done!')
 ##############################
 # Build matrix
 assert(N_max < n_samples_hh_kk/4)
+# Raise error if plane is different from 'x' or 'y'
+if (plane != 'x') and (plane != 'y'):
+    raise ValueError('Wrong argument for plane')
 beta_N = [0, Qp]
-planes = ['x','y']
 MM_list = []
-for plane in planes:
 
-    if (plane != x) and (plane != y):
-        raise ValueError('Wrong argument for planes')
-
-    MM_obj = CouplingMatrix(
-                imp_characterization['z_slices'],
-                imp_characterization['HH_' + plane],
-                imp_characterization['KK_' + plane],
-                l_min, l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_z, r_b,
-                a_param, lambda_param, omega0, omega_s, eta,
-                alpha_p=imp_characterization['alpha_N' + plane],
-                beta_p = beta_N, beta_fun_rescale=beta_fun_at_imped,
-                include_detuning_with_longit_amplitude=include_detuning_with_long_amplitude,
-                pool_size=pool_size)
-    MM_list.append(MM_obj)
+MM_obj = CouplingMatrix(
+            imp_characterization['z_slices'],
+            imp_characterization['HH_' + plane],
+            imp_characterization['KK_' + plane],
+            l_min, l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_z, r_b,
+            a_param, lambda_param, omega0, omega_s, eta,
+            alpha_p=imp_characterization['alpha_N' + plane],
+            beta_p = beta_N, beta_fun_rescale=beta_fun_at_imped,
+            include_detuning_with_longit_amplitude=include_detuning_with_long_amplitude,
+            pool_size=pool_size)
 
 print('Matrix built !')
 
@@ -150,9 +150,10 @@ print('Matrix built !')
 #######################
 # Compute eigenvalues #
 #######################
-Omega = np.array([MM_obj.compute_mode_complex_freq(omega_s) for MM_obj in MM_obj])
-M00_array = np.array([MM_obj.MM[np.argmin(np.abs(MM_obj.l_vect)),0, 
-                                          np.argmin(np.abs(MM_obj.l_vect)),0] for MM_obj in MM_obj])
+Omega = MM_obj.compute_mode_complex_freq(omega_s)
+
+i_l0 = np.argmin(np.abs(MM_obj.l_vect))
+M00_array = MM_obj.MM[i_l0,0,i_l0,0]
 
 print('Eigenvalues computed !')
 
@@ -161,7 +162,7 @@ import scipy.io as sio
 sio.savemat('eigenvalues.mat', {
     'Omega': Omega,
     'M00_array': M00_array,
-    'planes': planes,
+    'plane': plane,
     'omega0': omega0,
     'omega_s': omega_s,
     'l_min': l_min,
