@@ -30,7 +30,7 @@ circumference = 27e3
 particle_gamma = 480.
 beta_fun_at_imped = 92.7
 Q_full = 62.27
-Qp=0.
+Qp= 0.
 Qs = 4.9e-3
 eta = 0.000318152589
 
@@ -131,7 +131,6 @@ assert(N_max < n_samples_hh_kk/4)
 if (plane != 'x') and (plane != 'y'):
     raise ValueError('Wrong argument for plane')
 beta_N = [0, Qp]
-MM_list = []
 
 MM_obj = CouplingMatrix(
             imp_characterization['z_slices'],
