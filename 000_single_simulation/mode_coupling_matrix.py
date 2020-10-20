@@ -98,7 +98,7 @@ def f_R_for_pool(args):
 
 
 def compute_d_Phi(alpha_p, beta_p, phi_vect, r_vect,
-            sin_phi, cos_phi, beta_fun_rescale,
+            sin_phi, cos_phi, beta_fun_rescale, beta_rel
             omega0, omega_s, eta):
 
     n_r = len(r_vect)
@@ -153,11 +153,11 @@ def compute_d_Phi(alpha_p, beta_p, phi_vect, r_vect,
                     + (nn-1)/nn * S_N_PHI[nn-2, :])
         for nn in range(bP_terms):
             dPhi_R_PHI += -omega0/omega_s * B_P[nn] \
-                    * (omega_s/(clight*eta))**nn * np.dot(
+                    * (omega_s/(beta_rel*clight*eta))**nn * np.dot(
                     np.atleast_2d(r_vect**nn).T,
                     np.atleast_2d(S_N_PHI[nn, :]
                         - S_bar_N[nn]/(2*np.pi)*phi_vect))
-            dQ_ave_R += (omega_s/(clight*eta))**nn * B_P[nn] * S_bar_N[nn]/(2*np.pi) * r_vect**nn
+            dQ_ave_R += (omega_s/(beta_rel*clight*eta))**nn * B_P[nn] * S_bar_N[nn]/(2*np.pi) * r_vect**nn
 
     exp_j_dPhi_R_PHI = np.exp(1j*dPhi_R_PHI)
     d_Q_R_PHI = -omega_s/omega0 * np.diff(dPhi_R_PHI[:, :], axis=1)/np.diff(phi_vect)
@@ -171,7 +171,7 @@ class CouplingMatrix(object):
             l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
             a_param, lambda_param, omega0, omega_s, eta=None, alpha_p=(), beta_p=(),
             R_tilde_lmn=None, R_lmn=None, MM = None, beta_fun_rescale=None,
-            include_detuning_with_longit_amplitude = False,
+            beta_rel, include_detuning_with_longit_amplitude = False,
             pool_size=0):
 
         self.z_slices = z_slices
@@ -221,7 +221,7 @@ class CouplingMatrix(object):
             cos_phi = np.cos(phi_vect)
             cos2_phi = cos_phi*cos_phi
 
-            radius = clight/omega0
+            radius = beta_rel*clight/omega0
             beta_fun_smooth = radius/Q_full
             if beta_fun_rescale is None:
                 beta_fun_rescale = beta_fun_smooth
@@ -379,7 +379,7 @@ class CouplingMatrix(object):
                                 temp * np.sum(self.R_tilde_lmn[i_lp, i_mp, :][:n_cut]
                                     * self.R_lmn[i_l, i_m, :][:n_cut]))
 
-        coeff = -clight*self.a_param/(4*np.pi**2*np.sqrt(2*np.pi)*self.Q_full*self.sigma_b)
+        coeff = -beta_rel*clight*self.a_param/(4*np.pi**2*np.sqrt(2*np.pi)*self.Q_full*self.sigma_b)
         MM = coeff*no_coeff_M_l_m_lp_mp
 
         if self.include_detuning_with_longit_amplitude:

@@ -28,6 +28,7 @@ plane = ['x']
 
 circumference = 27e3
 particle_gamma = 480.
+beta_rel = np.sqrt(1 - 1/particle_gamma**2)
 beta_fun_at_imped = 92.7
 Q_full = 62.27
 Qp= 0.
@@ -139,7 +140,7 @@ MM_obj = CouplingMatrix(
             l_min, l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_z, r_b,
             a_param, lambda_param, omega0, omega_s, eta,
             alpha_p=imp_characterization['alpha_N' + plane],
-            beta_p = beta_N, beta_fun_rescale=beta_fun_at_imped,
+            beta_p = beta_N, beta_fun_rescale=beta_fun_at_imped, beta_rel=beta_rel,
             include_detuning_with_longit_amplitude=include_detuning_with_long_amplitude,
             pool_size=pool_size)
 
