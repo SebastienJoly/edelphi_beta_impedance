@@ -194,6 +194,7 @@ class CouplingMatrix(object):
         self.alpha_p = alpha_p
         self.beta_p = beta_p
         self.beta_fun_rescale = beta_fun_rescale
+        self.beta_rel = beta_rel
         self.include_detuning_with_longit_amplitude = include_detuning_with_longit_amplitude
 
         l_vect = np.array(range(l_min, l_max+1))
