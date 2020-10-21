@@ -24,7 +24,7 @@ import impedance_characterization as ic
 ##############
 
 # Choose plane, either 'x' or 'y'
-plane = ['x']
+plane = 'x'
 
 circumference = 27e3
 particle_gamma = 480.
