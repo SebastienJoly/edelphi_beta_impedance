@@ -138,9 +138,9 @@ MM_obj = CouplingMatrix(
             imp_characterization['HH_' + plane],
             imp_characterization['KK_' + plane],
             l_min, l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_z, r_b,
-            a_param, lambda_param, omega0, omega_s, eta,
+            a_param, lambda_param, omega0, omega_s, beta_rel, eta,
             alpha_p=imp_characterization['alpha_N' + plane],
-            beta_p = beta_N, beta_fun_rescale=beta_fun_at_imped, beta_rel=beta_rel,
+            beta_p = beta_N, beta_fun_rescale=beta_fun_at_imped,
             include_detuning_with_longit_amplitude=include_detuning_with_long_amplitude,
             pool_size=pool_size)
 

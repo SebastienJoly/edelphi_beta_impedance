@@ -98,7 +98,7 @@ def f_R_for_pool(args):
 
 
 def compute_d_Phi(alpha_p, beta_p, phi_vect, r_vect,
-            sin_phi, cos_phi, beta_fun_rescale, beta_rel
+            sin_phi, cos_phi, beta_fun_rescale, beta_rel,
             omega0, omega_s, eta):
 
     n_r = len(r_vect)
@@ -169,9 +169,9 @@ class CouplingMatrix(object):
 
     def __init__(self, z_slices, HH, KK, l_min,
             l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-            a_param, lambda_param, omega0, omega_s, eta=None, alpha_p=(), beta_p=(),
+            a_param, lambda_param, omega0, omega_s, beta_rel, eta=None, alpha_p=(), beta_p=(),
             R_tilde_lmn=None, R_lmn=None, MM = None, beta_fun_rescale=None,
-            beta_rel, include_detuning_with_longit_amplitude = False,
+            include_detuning_with_longit_amplitude = False,
             pool_size=0):
 
         self.z_slices = z_slices
@@ -190,11 +190,11 @@ class CouplingMatrix(object):
         self.lambda_param  = lambda_param
         self.omega0 = omega0
         self.omega_s = omega_s
+        self.beta_rel = beta_rel
         self.eta = eta
         self.alpha_p = alpha_p
         self.beta_p = beta_p
         self.beta_fun_rescale = beta_fun_rescale
-        self.beta_rel = beta_rel
         self.include_detuning_with_longit_amplitude = include_detuning_with_longit_amplitude
 
         l_vect = np.array(range(l_min, l_max+1))
@@ -230,7 +230,7 @@ class CouplingMatrix(object):
             exp_j_dPhi_R_PHI, dPhi_R_PHI, d_Q_R_PHI, dQ_ave_R = compute_d_Phi(
                     alpha_p, beta_p, phi_vect, r_vect,
                     sin_phi, cos_phi, beta_fun_rescale,
-                    omega0, omega_s, eta)
+                    beta_rel, omega0, omega_s, eta)
             self.dPhi_R_PHI= dPhi_R_PHI #[:, :]
             self.d_Q_R_PHI = d_Q_R_PHI
             self.dQ_ave_R = dQ_ave_R
