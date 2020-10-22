@@ -380,7 +380,7 @@ class CouplingMatrix(object):
                                 temp * np.sum(self.R_tilde_lmn[i_lp, i_mp, :][:n_cut]
                                     * self.R_lmn[i_l, i_m, :][:n_cut]))
 
-        coeff = -beta_rel*clight*self.a_param/(4*np.pi**2*np.sqrt(2*np.pi)*self.Q_full*self.sigma_b)
+        coeff = -self.beta_rel*clight*self.a_param/(4*np.pi**2*np.sqrt(2*np.pi)*self.Q_full*self.sigma_b)
         MM = coeff*no_coeff_M_l_m_lp_mp
 
         if self.include_detuning_with_longit_amplitude:
