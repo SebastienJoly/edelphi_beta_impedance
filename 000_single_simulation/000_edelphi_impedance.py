@@ -23,11 +23,14 @@ import impedance_characterization as ic
 # Parameters #
 ##############
 
+# Choose plane, either 'x' or 'y'
+plane = 'x'
+
 circumference = 27e3
 particle_gamma = 480.
 beta_fun_at_imped = 92.7
 Q_full = 62.27
-Qp=0.
+Qp= 0.
 Qs = 4.9e-3
 eta = 0.000318152589
 
@@ -35,8 +38,8 @@ omega0 = 2*np.pi*clight/circumference
 omega_s = Qs * omega0
 
 # Impedance definition
-resonator_R_shunt = 3*25e6
-resonator_frequency = 2e9
+resonator_R_shunt = 10e6
+resonator_frequency = 1e9
 resonator_Q = 1.
 Yokoya_X1 = 1.
 Yokoya_X2 = 1.
@@ -104,7 +107,7 @@ wake_quadrupolar_element = wakes.WakeField(slicer_for_wakefields,
 print('Start impedance characterization...')
 imp_characterization = ic.characterize_impedances(
         wake_dipolar_element=wake_dipolar_element,
-        wake_quadrupolar_element=wake_dipolar_element,
+        wake_quadrupolar_element=wake_quadrupolar_element,
         n_samples_hh_kk=n_samples_hh_kk,
         test_amplitude=test_amplitude,
         intensity=intensity,
@@ -124,17 +127,23 @@ print('Done!')
 ##############################
 # Build matrix
 assert(N_max < n_samples_hh_kk/4)
+# Raise error if plane is different from 'x' or 'y'
+if (plane != 'x') and (plane != 'y'):
+    raise ValueError('Wrong argument for plane')
 beta_N = [0, Qp]
+
 MM_obj = CouplingMatrix(
-        imp_characterization['z_slices'],
-        imp_characterization['HH'],
-        imp_characterization['KK'],
-        l_min, l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_z, r_b,
-        a_param, lambda_param, omega0, omega_s, eta,
-        alpha_p=imp_characterization['alpha_N'],
-        beta_p = beta_N, beta_fun_rescale=beta_fun_at_imped,
-        include_detuning_with_longit_amplitude=include_detuning_with_long_amplitude,
-        pool_size=pool_size)
+            imp_characterization['z_slices'],
+            imp_characterization['HH_' + plane],
+            imp_characterization['KK_' + plane],
+            l_min, l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_z, r_b,
+            a_param, lambda_param, omega0, omega_s, eta,
+            alpha_p=imp_characterization['alpha_N' + plane],
+            beta_p = beta_N, beta_fun_rescale=beta_fun_at_imped,
+            include_detuning_with_longit_amplitude=include_detuning_with_long_amplitude,
+            pool_size=pool_size)
+
+print('Matrix built !')
 
 
 #######################
@@ -145,10 +154,14 @@ Omega = MM_obj.compute_mode_complex_freq(omega_s)
 i_l0 = np.argmin(np.abs(MM_obj.l_vect))
 M00_array = MM_obj.MM[i_l0,0,i_l0,0]
 
+print('Eigenvalues computed !')
+
+
 import scipy.io as sio
 sio.savemat('eigenvalues.mat', {
     'Omega': Omega,
     'M00_array': M00_array,
+    'plane': plane,
     'omega0': omega0,
     'omega_s': omega_s,
     'l_min': l_min,
@@ -156,3 +169,4 @@ sio.savemat('eigenvalues.mat', {
     'm_max': m_max,
     'N_max': N_max})
 
+print('Finished')
