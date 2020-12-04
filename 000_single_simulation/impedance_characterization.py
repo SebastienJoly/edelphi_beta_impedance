@@ -5,7 +5,7 @@ from scipy.constants import e as qe
 from PyHEADTAIL.particles import generators
 from PyHEADTAIL.particles.slicing import UniformBinSlicer
 
-def characterize_impedances(wake_dipolar_element, wake_quadrupolar_element,
+def characterize_impedances(list_wake_dipolar, list_wake_quadrupolar,
         n_samples_hh_kk, test_amplitude,
         intensity, sigma_z,
         circumference, particle_charge, particle_mass, particle_gamma,
@@ -112,7 +112,8 @@ def characterize_impedances(wake_dipolar_element, wake_quadrupolar_element,
         bunch.clean_slices()
 
         # Apply impedance
-        wake_dipolar_element.track(bunch)
+        for wake_dipolar_element in list_wake_dipolar:
+            wake_dipolar_element.track(bunch)
 
         # Measure kicks
         bunch.clean_slices()
@@ -152,7 +153,7 @@ def characterize_impedances(wake_dipolar_element, wake_quadrupolar_element,
     #############################
     # Detuning characterization #
     #############################
-    if wake_quadrupolar_element is not None:
+    if list_wake_quadrupolar is not None:
         bunch.x *= 0
         bunch.xp *= 0
         bunch.y *= 0
@@ -162,7 +163,8 @@ def characterize_impedances(wake_dipolar_element, wake_quadrupolar_element,
         bunch.y += test_amplitude
         
         bunch.clean_slices()
-        wake_quadrupolar_element.track(bunch)
+        for wake_quadrupolar_element in list_wake_quadrupolar:
+            wake_quadrupolar_element.track(bunch)
         bunch.clean_slices()
 
         slices_set = bunch.get_slices(slicer_for_harmonicresponse, statistics=True)
