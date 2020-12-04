@@ -90,6 +90,11 @@ wake_dipolar = wakes.Resonator(R_shunt=resonator_R_shunt,
         switch_Z=0)
 wake_dipolar_element = wakes.WakeField(slicer_for_wakefields, wake_dipolar)
 
+#Empty list of wake elements
+list_wake_dipolar = []
+#Append all the wake elements (wakes.WakeField objects) you need in it.
+list_wake_dipolar.append(wake_dipolar_element)
+
 # Quadrupolar wake
 wake_quadrupolar = wakes.Resonator(R_shunt=resonator_R_shunt,
         frequency=resonator_frequency,
@@ -102,13 +107,18 @@ wake_quadrupolar = wakes.Resonator(R_shunt=resonator_R_shunt,
 wake_quadrupolar_element = wakes.WakeField(slicer_for_wakefields,
         wake_quadrupolar)
 
+#Empty list of wake elements
+list_wake_quadrupolar = []
+#Append all the wake elements (wakes.WakeField objects) you need in it.
+list_wake_quadrupolar.append(wake_quadrupolar_element)
+
 ##########################
 # Characterize impedance # 
 ##########################
 print('Start impedance characterization...')
 imp_characterization = ic.characterize_impedances(
-        wake_dipolar_element=wake_dipolar_element,
-        wake_quadrupolar_element=wake_quadrupolar_element,
+        list_wake_dipolar=list_wake_dipolar,
+        list_wake_quadrupolar=list_wake_quadrupolar,
         n_samples_hh_kk=n_samples_hh_kk,
         test_amplitude=test_amplitude,
         intensity=intensity,
