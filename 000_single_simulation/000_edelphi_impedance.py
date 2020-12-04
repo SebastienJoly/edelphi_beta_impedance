@@ -90,7 +90,9 @@ wake_dipolar = wakes.Resonator(R_shunt=resonator_R_shunt,
         switch_Z=0)
 wake_dipolar_element = wakes.WakeField(slicer_for_wakefields, wake_dipolar)
 
+#Empty list of wake elements
 list_wake_dipolar = []
+#Append all the wake elements (wakes.WakeField objects) you need in it.
 list_wake_dipolar.append(wake_dipolar_element)
 
 # Quadrupolar wake
@@ -105,7 +107,9 @@ wake_quadrupolar = wakes.Resonator(R_shunt=resonator_R_shunt,
 wake_quadrupolar_element = wakes.WakeField(slicer_for_wakefields,
         wake_quadrupolar)
 
+#Empty list of wake elements
 list_wake_quadrupolar = []
+#Append all the wake elements (wakes.WakeField objects) you need in it.
 list_wake_quadrupolar.append(wake_quadrupolar_element)
 
 ##########################
